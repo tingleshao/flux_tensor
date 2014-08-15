@@ -12,3 +12,28 @@
 
 
 
+% read the data
+
+listing = dir('taxi');
+names = {listing.name};
+
+sampleimg = imread(strcat('taxi/',char(names(size(names,2)))));
+height = size(sampleimg,1);
+width = size(sampleimg,2);
+frame_num = size(names,2) - 3;
+
+video = zeros(height,width,frame_num);
+t = 1;
+for k = 1:size(names,2)-3
+    name = char(names(k));
+    frame = zeros(height,width);
+    if name(1) ~= '.'
+        frame = imread(strcat('taxi/',char(name)));
+        video(:,:,t) = frame;
+        t = t + 1
+    end
+   
+end
+
+% compute the flux tensor trace values 
+motion_blob = flux_tensor_filter(video);

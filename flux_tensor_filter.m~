@@ -28,24 +28,37 @@ for k = 1:size(video,3)
     % smooth the image
     height = size(curr_frame,1);
     width = size(curr_frame,2);
-    for i = 1:size(k,1)
+    for i = 1:size(video,1)
        row = curr_frame(i,:);
        g_row = conv(row, gaussFilter);
        sx_curr_frame(i,:) = g_row(15: width + 14);
     end
     
-    for j = 1:size(k,2)
+    for j = 1:size(video,2)
         col = curr_frame(:,j);
         g_col = conv(col, gaussFilter');
         sy_curr_frame(:,j) = g_col(15: height + 14);
     end
-    
-    for j = 1:size(k,2)
+    if k == 1
+        imtool(sy_curr_frame)
+    end
+    for j = 1:size(video,2)
         col = sx_curr_frame(:,j);
         g_col = conv(col, gaussFilter');
         ss_curr_frame(:,j) = g_col(15: height + 14);
     end
     
+    % debugging purpose 
+    %{
+    if k == 1
+        figure
+        imshow(sx_curr_frame,[0,max(sx_curr_frame(:))]);
+        figure
+        imshow(sy_curr_frame,[0,max(sy_curr_frame(:))]);
+        figure
+        imshow(ss_curr_frame,[0,max(ss_curr_frame(:))]);
+    end
+    %}
     % take the gradients
     [Ixs, foo] = imgradientxy(sx_curr_frame);
     [foo, Ixy] = imgradientxy(sy_curr_frame);
@@ -82,7 +95,17 @@ for i = 1:size(Vxt,3)
 end
 
 % average in the neighborhood
-
+% now choose 3x3
+kernel = [1/9,1/9,1/9;1/9,1/9,1/9;1/9,1/9,1/9];
+xxx = conv2(sum_of_squared(:,:,1),kernel);
+trace_I = zeros(size(xxx,1),size(xxx,2),size(sum_of_squared,3));
+for k = 1: size(sum_of_squared,3);
+    curr_frame = sum_of_squared(:,:,k);
+    curr_trace_i = conv2(curr_frame,kernel);
+    trace_I(:,:,k) = curr_trace_i; 
+end
+%trace_I = conv( sum_of_squared,kernel);
+motion_blob = trace_I;
 
 
 
